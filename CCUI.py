@@ -2,19 +2,8 @@ from http.client import HTTPException
 import json
 import os
 import subprocess
-from time import sleep
-from xml.etree.ElementInclude import include
-from scrapy.crawler import CrawlerProcess
-from scrapy import cmdline
-from apis.api import API
-from spiders.dynamic import DynamicSpider
-
 from spiders.fetchopensouce import FetchOpenSource
 from spiders.licenses import LicenceAnalyser
-from spiders.static import StaticSpider
-from dotenv import load_dotenv
-from storage.sql_db import Database
-from utils.classifier import Classify
 from utils.util import cprint
 
 
@@ -105,37 +94,6 @@ class Show(Command):
 
             cprint(f"{c}. {self.escaper(f'{c}', len(f'{number_of_elements}'))} {element.get('key')} {self.escaper(element.get('key'), tabs)} {element.get('value')}")
 
-class ShowWebsites(Show):
-    DOCUMENTATION = {"key":"show websites", "value":"To show a list of configured websites"}
-    def __init__(self, close) -> None:
-        CONFIG_FILE = open(CONFIG_FILE_URI)
-        CONFIGS = json.load(CONFIG_FILE)
-        body = []
-        for conf in CONFIGS:
-            body.append({"key":f"NO: {conf.get('id')}", "value":conf.get("description")})
-        info = Information(
-                title="List of available websites",
-                body=body
-            )
-        super().__init__(info, close, ["show", "websites"])
-
-
-class ShowCountries(Show):
-    DOCUMENTATION =  {"key":"show countries", "value":"To show a list of countries"}
-    def __init__(self, close) -> None:
-        countries_file = open('african_countries.json')
-        countries_list = json.load(countries_file)
-        body = []
-        for c in countries_list:
-            body.append({"key":c, "value":""})
-
-        info = Information(
-                title="List of available countries",
-                body=body
-            )
-        
-        super().__init__(info=info, close=close, name=["show", "countries"])
-
 
 class OpenSourceFetch(Command):
     DOCUMENTATION = {"key":"opensource", "value":"To fetch repos based on a given topic"}
@@ -161,189 +119,11 @@ class OpenLicensesCollecter(Command):
 
     def exec (self, *args, **kwargs):
 
-        # process = DynamicSpider(self.SELECTED_CONF, DB=d, TEST=self.TEST)
         process = LicenceAnalyser(self.CONFIGS, self.FILE_DIR)
         process.crawl()
        
                 
 
-
-class Crawler(Command):
-    DOCUMENTATION =  {"key":"crawl", "value":"Crawl a website. Follow the guidelines"}
-    TEST = False
-    SELECTED_CONF = {}
-    DIRECTORY = "./data/"
-    def __init__(self, show_websites:ShowWebsites, show_countries:ShowCountries) -> None:
-        # load_dotenv()
-        # self.TEST =  True if int(str(os.getenv("TEST"))) == 1 else False
-        self.COMMAND_NAME = ["crawl"]
-        self.READY = False
-        self.DEFAULT = False
-        self.CONFIG_FILE = open(CONFIG_FILE_URI)
-        self.COUNTRIES_FILE = open('african_countries.json')
-        self.CONFIGS = json.load(self.CONFIG_FILE)
-        self.COUNTRIES_LIST = json.load(self.COUNTRIES_FILE)
-        self.show_websites = show_websites
-        self.show_countries = show_countries
-
-    def execution_ (self,):
-        d = Database()
-        # Create a class for the script execution and configure the class such that the directory is created once 
-        if not os.path.exists(self.DIRECTORY):
-            os.makedirs(self.DIRECTORY, exist_ok=True)
-        if os.path.exists(f'{self.SELECTED_CONF["file_name"]}.json') and (d.check_if_db_isempty()!=0):
-                self.SELECTED_CONF["file_name"] = self.SELECTED_CONF["file_name"]+"new"
-        with open(f'{self.SELECTED_CONF["file_name"]}.json', 'w') as f:
-                f.write('\n[')
-
-        #  Check if the wesite is a JS Rendered website
-        if self.SELECTED_CONF["is_dynamic"]:
-            process = DynamicSpider(self.SELECTED_CONF, DB=d, TEST=self.TEST)
-            process.crawl()
-        else:
-            process = CrawlerProcess()
-            # Add your spider to the process
-            process.crawl(StaticSpider, CONFIGS=self.SELECTED_CONF, DB=d, TEST=self.TEST)
-            # cmdline.execute("scrapy runspider scrapywebcro.py -O".split())
-            # Start the crawling process
-            process.start()
-            
-        with open(f'{self.SELECTED_CONF["file_name"]}.json', 'a') as f:
-            f.write('\n]')
-        d.close_connection()
-
-    
-
-    def exec(self, *args, **kwargs):
-        # Load configurations again
-        self.CONFIG_FILE = open(CONFIG_FILE_URI)
-        self.CONFIGS = json.load(self.CONFIG_FILE)
-        # 
-        self.show_websites.exec()
-        choice = input(":> Which site doyou want to crawl: ")
-        
-        for element in self.CONFIGS:
-            if  str(element.get('id')) == str(choice):
-                self.SELECTED_CONF = element
-                break
-
-        if self.SELECTED_CONF:
-        #   If the selected configs requires some filtering
-        #   The user can choose a country to filter by
-            self.READY = True
-           
-            #  5 is a magic choice
-            if self.SELECTED_CONF.get("choose_country"):
-                country = input(":>Choose a country: ")
-            
-                # Country names to lower case
-                countries = [c.lower() for c in self.COUNTRIES_LIST]
-                if country.lower() in countries:
-                    start_url = self.SELECTED_CONF['start_url'].replace("african_country", country)
-                    self.SELECTED_CONF["start_url"] = start_url
-                    file_name = self.SELECTED_CONF['file_name'] + country
-                    self.SELECTED_CONF['file_name'] = file_name
-                elif  country == '5':
-                    self.DEFAULT = True
-                else:
-                    cprint("The selected country does not exist!!")
-                    self.show_countries.exec()
-                    self.READY = False
-        # 
-        if self.READY and len(self.SELECTED_CONF)!=0:
-            cprint("=======================================")
-            cprint("")
-            cprint("=======================================")
-            cprint("")
-            cprint("Very good!!")
-            cprint("")
-            cprint("The domain: "+ self.SELECTED_CONF["domain"])
-            cprint("Start URL: "+ self.SELECTED_CONF["start_url"])
-            # If the file has rules
-            if self.SELECTED_CONF.get('is_dynamic') is False:
-                cprint("Dataset traversal rule: "+ self.SELECTED_CONF['rules'][0]['allow'])
-                cprint("Restriction rule: "+ self.SELECTED_CONF["rules"][0]["deny"])
-                cprint("Single dataset visit rule: "+ self.SELECTED_CONF["rules"][1]["allow"])
-                cprint("Restriction rule: "+ self.SELECTED_CONF["rules"][1]["deny"])
-            cprint("=======================================")
-            cprint("")
-            is_ok = input(":>If all is ok press 1")
-            if is_ok == '1':
-                if self.DEFAULT is False:
-                    self.execution_()
-                else:
-                    start_url = self.SELECTED_CONF['start_url'].replace("african_country", self.COUNTRIES_LIST[0])
-                    self.SELECTED_CONF["start_url"] = start_url
-                    file_name = self.SELECTED_CONF['file_name'] + self.COUNTRIES_LIST[0]
-                    self.SELECTED_CONF['file_name'] = file_name
-                    # Create a CrawlerProcess
-                    self.execution_()            
-        else:
-            pass
-
-# The main interface
-class CrawlerTest(Crawler):
-    DOCUMENTATION =  {"key":"crawl test", "value":"Crawl a website for testing. (SQL database is OFF)"}
-    def __init__(self, show_websites: ShowWebsites, show_countries: ShowCountries) -> None:
-        super().__init__(show_websites, show_countries)
-        self.COMMAND_NAME = ["crawl", "test"]
-        self.TEST = True
-
-
-class ClassifyCommand(Command):
-    DOCUMENTATION = {"key": "classify", "value": "To class data based on the 17 SDGS"}
-    def __init__(self, ) -> None:
-        # self.api = API()
-        self.db = Database()
-        self.classify = Classify()
-        self.COMMAND_NAME = ["classify"]
-        super().__init__()
-    
-    def exec(self, *args, **kwargs):
-        try:
-            print("Hello") 
-            self.classify.class_by_sdgs(self.db)
-           
-        except HTTPException as e:
-            cprint(e)
-
-
-class Publish(Command):
-    DOCUMENTATION = {"key": "publish", "value": "To send data to OPEN DATA API "}
-    def __init__(self, ) -> None:
-        self.api = API(TEST=False)
-        self.COMMAND_NAME = ["publish"]
-        super().__init__()
-
-
-    def exec(self, *args, **kwargs):
-        try:
-            loggedIn = self.api.authenticate()
-            if loggedIn:
-                self.api.publish_link()
-            else:
-                print("SYS Closed!")
-        except HTTPException as e:
-            cprint(f"Network request error: {e}")
-
-
-class PublishTest(Command):
-    DOCUMENTATION = {"key": "publish test", "value": "To send data to OPEN DATA API TEST API"}
-    def __init__(self, ) -> None:
-        self.api = API(TEST=True)
-        self.COMMAND_NAME = ["publish", "test"]
-        super().__init__()
-
-
-    def exec(self, *args, **kwargs):
-        try:
-            loggedIn = self.api.authenticate()
-            if loggedIn:
-                self.api.publish_link()
-            else:
-                print("SYS Closed!")
-        except HTTPException as e:
-            cprint(f"Network request error: {e}")
 
 
 class ShowManuel(Show):
@@ -356,13 +136,6 @@ class ShowManuel(Show):
                 {"key": "exit", "value": "Exit from a loop or another function"},
                 self.DOCUMENTATION,
                 Show.DOCUMENTATION,
-                ShowCountries.DOCUMENTATION,
-                ShowWebsites.DOCUMENTATION,
-                Crawler.DOCUMENTATION,
-                CrawlerTest.DOCUMENTATION,
-                Publish.DOCUMENTATION,
-                ClassifyCommand.DOCUMENTATION,
-                PublishTest.DOCUMENTATION,
                 OpenLicensesCollecter.DOCUMENTATION,
                 OpenSourceFetch.DOCUMENTATION
             ], key=lambda el: el['key'])
@@ -393,32 +166,16 @@ class CrawlerUCLI():
         info = Information(
             title="Available 'show' commands",
             body=[
-                ShowCountries.DOCUMENTATION,
-                ShowWebsites.DOCUMENTATION,
                 ShowManuel.DOCUMENTATION
             ]
         )
         show = Show(info=info, close=self.close, name=["show"])
         show_manuel = ShowManuel(close=self.close)
-        show_countries = ShowCountries(close=self.close) 
-        show_websites = ShowWebsites(close=self.close)
-        publish = Publish()
-        publish_test = PublishTest()
-        crawler = Crawler(show_countries=show_countries, show_websites=show_websites)
-        crawler_test  = CrawlerTest(show_countries=show_countries, show_websites=show_websites)
-        classify = ClassifyCommand()
         license = OpenLicensesCollecter()
         opensource = OpenSourceFetch()
         self.commands_list = [
-            show_websites,
-            show_countries,
-            crawler,
-            crawler_test,
             show,
             show_manuel,
-            publish,
-            classify,
-            publish_test,
             license,
             opensource
         ]

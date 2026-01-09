@@ -16,9 +16,9 @@ class Link:
         self.hash_link()
 
     # Creates a hash value of the title and the link for this to be unique in our database
-    def hash_link (self):
+    def hash_link(self):
         # Change this keys with caution, because this might change everything
-        obj = {"url":self.data, "title":self.name}
+        obj = {"url": self.data, "title": self.name}
         hash_object = hashlib.sha256()
 
         hash_object.update(bytes(f'{obj}', 'utf-8'))

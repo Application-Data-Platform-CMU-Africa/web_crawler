@@ -1,0 +1,54 @@
+[
+    {
+        "id": 1,
+        "start_url": "http://catalog.data.ug/dataset",
+        "description": "Ugandan data portal website",
+        "file_name": "./data/uganda.dataportal",
+        "domain": "catalog.data.ug",
+        "source_name": "DATA.UG",
+        "rules": [
+            {
+                "id": 1,
+                "allow": "/dataset\\?page.*",
+                "deny": ""
+            },
+            {
+                "id": 2,
+                "allow": "/dataset/*",
+                "deny": "/dataset\\?"
+            }
+        ],
+        "title_selector": "#content > div.row.wrapper > div > article > div > h1::text",
+        "description_selector": "#content > div.row.wrapper > div > article > div > div > p:nth-child(1)::text",
+        "tags_selector": "#content > div.row.wrapper > div > article > div > section.tags > ul > li > a::text",
+        "type_selector": null,
+        "choose_country": false,
+        "is_dynamic": false
+    },
+    {
+        "id": 2,
+        "start_url": "https://catalog.data.gov/dataset/?q=african_country&page=1",
+        "description": "US Data portal (with country filter)",
+        "file_name": "./data/us.dataportal.",
+        "source_name": "DATA.GOV",
+        "domain": "catalog.data.gov",
+        "rules": [
+            {
+                "id": 1,
+                "allow": "/dataset/\\?q=.*&page.*",
+                "deny": ""
+            },
+            {
+                "id": 2,
+                "allow": "/dataset/*",
+                "deny": "/dataset/\\?"
+            }
+        ],
+        "title_selector": "div.controller-dataset.action-read:nth-child(6) div.container div.row.wrapper div.primary.col-sm-9.col-xs-12 article.module.prose section.module-content:nth-child(1) > h1::text",
+        "description_selector": "#content > div.row.wrapper > div > article > section:nth-child(1) > div.notes.embedded-content > p::text",
+        "tags_selector": "#content > div.row.wrapper > div > article > section.tags > ul > li > a::text",
+        "type_selector": null,
+        "choose_country": true,
+        "is_dynamic": false
+    }
+]

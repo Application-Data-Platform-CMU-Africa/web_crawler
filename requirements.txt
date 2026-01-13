@@ -1,59 +1,77 @@
-asttokens==2.2.1
-attrs==22.2.0
-backcall==0.2.0
-certifi==2022.12.7
-charset-normalizer==3.1.0
-ckanapi==4.7
-click==8.1.3
-click-plugins==1.1.1
-cligj==0.7.2
-colorama==0.4.6
-comm==0.1.3
-debugpy==1.6.7
-decorator==5.1.1
-docopt==0.6.2
-executing==1.2.0
-Fiona==1.9.3
-geopandas==0.12.2
-GooCalendar==0.8.0
-idna==3.4
-ipykernel==6.22.0
-ipython==8.12.0
-jedi==0.18.2
-joblib==1.2.0
-jupyter_client==8.1.0
-jupyter_core==5.3.0
-matplotlib-inline==0.1.6
-munch==2.5.0
-nest-asyncio==1.5.6
+# ==================================================
+# Flask Web Crawler - Production Requirements
+# ==================================================
+
+# Core Flask
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-CORS==4.0.0
+
+# Database
+SQLAlchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Task Queue
+celery[redis]==5.3.6
+redis==5.0.1
+
+# Web Server
+gunicorn==21.2.0
+
+# Serialization & Validation
+marshmallow==3.20.2
+marshmallow-sqlalchemy==0.30.0
+
+# Web Scraping
+scrapy==2.11.1
+beautifulsoup4==4.12.3
+lxml==5.1.0
+selenium==4.16.0
+webdriver-manager==4.0.1
+
+# HTTP & Requests
+requests==2.31.0
+urllib3==2.2.0
+
+# AI/ML
+openai==1.8.0
 nltk==3.8.1
-numpy==1.24.2
-opencv-python==4.7.0.72
-packaging==23.0
-pandas==2.0.0
-parso==0.8.3
-pickleshare==0.7.5
-platformdirs==3.2.0
-prompt-toolkit==3.0.38
-psutil==5.9.4
-pure-eval==0.2.2
-Pygments==2.15.0
-pyproj==3.5.0
+scikit-learn==1.4.0
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.3
+
+# Security & Auth
+python-dotenv==1.0.1
+PyJWT==2.8.0
+bcrypt==4.1.2
+
+# API Documentation
+flask-swagger-ui==4.11.1
+apispec==6.4.0
+apispec-webframeworks==1.0.0
+
+# Rate Limiting
+Flask-Limiter==3.5.1
+
+# Monitoring & Logging
+prometheus-client==0.19.0
+python-json-logger==2.0.7
+
+# Utilities
+python-slugify==8.0.2
+colorama==0.4.6
+tqdm==4.66.1
+click==8.1.7
+
+# Date/Time
 python-dateutil==2.8.2
-python-slugify==8.0.1
-pytz==2023.3
-pywin32==306
-pyzmq==25.0.2
-regex==2023.3.23
-requests==2.28.2
-shapely==2.0.1
-six==1.16.0
-sklearn==0.0.post1
-stack-data==0.6.2
-text-unidecode==1.3
-tornado==6.2
-tqdm==4.65.0
-traitlets==5.9.0
-tzdata==2023.3
-urllib3==1.26.15
-wcwidth==0.2.6
+pytz==2024.1
+
+# File Handling
+charset-normalizer==3.3.2
+certifi==2024.2.2
+idna==3.6

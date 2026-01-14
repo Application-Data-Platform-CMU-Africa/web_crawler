@@ -24,6 +24,7 @@ class User(db.Model):
 
     # Relationships
     api_keys = db.relationship('APIKey', backref='user', lazy='dynamic')
+    crawl_jobs = db.relationship('CrawlJob', back_populates='user', lazy='dynamic')
 
     def __repr__(self):
         return f'<User {self.email}>'

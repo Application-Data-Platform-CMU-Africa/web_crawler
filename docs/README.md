@@ -32,6 +32,56 @@ This directory contains all technical documentation for the Dataset Crawler API 
 
 ---
 
+### [CRAWLING_FLOW.md](CRAWLING_FLOW.md)
+**Complete Crawling Flow Documentation**
+- 6-phase crawl flow from API request to database
+- Detailed step-by-step process
+- Data transformation examples
+- Decision points and validation rules
+
+**Status:** Complete
+**Audience:** Developers
+
+---
+
+### [UPDATE_STRATEGY.md](UPDATE_STRATEGY.md)
+**Data Update Strategy**
+- 4 update strategies explained
+- Hybrid approach recommendation
+- Handling deleted datasets
+- Update metrics tracking
+
+**Status:** Complete
+**Audience:** Developers, Architects
+
+---
+
+### [HASH_STRATEGY.md](HASH_STRATEGY.md)
+**Two-Hash Strategy Documentation**
+- Duplicate detection approach
+- Update tracking mechanism
+- URL-based vs content-based hashing
+- Scenarios and examples
+
+**Status:** Complete
+**Audience:** Developers
+
+---
+
+### [DATABASE_MODELS.md](DATABASE_MODELS.md)
+**Database Models Documentation**
+- Complete schema documentation
+- All 7 models + 2 association tables
+- Two-hash implementation details
+- Relationships and indexes
+- Migration commands
+- Sample data seeding
+
+**Status:** Complete
+**Audience:** Developers, Database Administrators
+
+---
+
 ## 📖 Quick Links
 
 - **Main README:** [../README.md](../README.md) - User guide and getting started

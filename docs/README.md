@@ -4,6 +4,20 @@ This directory contains all technical documentation for the Dataset Crawler API 
 
 ## 📚 Available Documents
 
+### [QUICK_START.md](QUICK_START.md) ⭐
+**Quick Start Guide** - *Start Here*
+- Step-by-step setup instructions
+- Prerequisites checklist
+- Running all services
+- Verification steps
+- Common issues and solutions
+- Quick reference commands
+
+**Status:** Complete
+**Audience:** New developers, Everyone getting started
+
+---
+
 ### [DESIGN.md](DESIGN.md)
 **Comprehensive Technical Design Document**
 - System architecture
@@ -82,6 +96,20 @@ This directory contains all technical documentation for the Dataset Crawler API 
 
 ---
 
+### [CRAWL_FLOW.md](CRAWL_FLOW.md)
+**End-to-End Crawl Flow Implementation**
+- Complete flow from API endpoints to crawling
+- Architecture diagram and component breakdown
+- Celery task implementation
+- Database integration patterns
+- Monitoring and testing guide
+- Configuration and deployment steps
+
+**Status:** Complete
+**Audience:** Developers, DevOps
+
+---
+
 ## 📖 Quick Links
 
 - **Main README:** [../README.md](../README.md) - User guide and getting started
@@ -105,4 +133,4 @@ The following documents will be added as the project evolves:
 
 ---
 
-**Last Updated:** January 13, 2026
+**Last Updated:** January 22, 2026

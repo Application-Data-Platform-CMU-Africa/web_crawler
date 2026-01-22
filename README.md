@@ -203,13 +203,18 @@ curl -X POST http://localhost:5000/api/v1/crawl/start \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "site_id": "uganda-portal",
-    "start_url": "http://catalog.data.ug/dataset",
+    "site_id": "1",
     "options": {
       "test_mode": false,
       "max_pages": 100
     }
   }'
+```
+
+**Check job status:**
+```bash
+curl http://localhost:5000/api/v1/crawl/jobs/{job_id} \
+  -H "X-API-Key: your-api-key"
 ```
 
 **List datasets:**
@@ -218,7 +223,26 @@ curl http://localhost:5000/api/v1/datasets?page=1&limit=50 \
   -H "X-API-Key: your-api-key"
 ```
 
-See [DESIGN.md](docs/DESIGN.md) for complete API documentation.
+See [docs/DESIGN.md](docs/DESIGN.md) for complete API documentation and [docs/CRAWL_FLOW.md](docs/CRAWL_FLOW.md) for end-to-end flow details.
+
+## 🧪 Quick Start Test
+
+To test the complete end-to-end crawl flow:
+
+```bash
+# 1. Make sure all services are running (Redis, Flask API, Celery Worker)
+
+# 2. Run the test script
+python test_crawl_flow.py
+
+# The script will:
+#   - Start a crawl job
+#   - Monitor job progress
+#   - Display statistics
+#   - Show final results
+```
+
+**Note:** Update the `API_KEY` in `test_crawl_flow.py` before running.
 
 ## 🛠️ Development
 

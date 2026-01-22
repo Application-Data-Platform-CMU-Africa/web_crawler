@@ -18,33 +18,33 @@ class CrawlJob(db.Model):
 
     # Job Identification
     job_id = db.Column(db.String(255), unique=True, index=True, nullable=False,
-                      comment='Unique job identifier (UUID or similar)')
+                       comment='Unique job identifier (UUID or similar)')
     celery_task_id = db.Column(db.String(255), unique=True, index=True,
-                              comment='Celery task ID for tracking')
+                               comment='Celery task ID for tracking')
 
     # Crawl Configuration
     site_id = db.Column(db.String(255), nullable=False, index=True,
-                       comment='Site configuration ID (e.g., uganda-portal)')
+                        comment='Site configuration ID (e.g., uganda-portal)')
     start_url = db.Column(db.Text, nullable=False,
-                         comment='Starting URL for the crawl')
+                          comment='Starting URL for the crawl')
     crawler_type = db.Column(db.String(50), default='static',
-                            comment='static, dynamic, api, etc.')
+                             comment='static, dynamic, api, etc.')
 
     # Options & Configuration
     options = db.Column(JSONB, default=dict,
-                       comment='Crawl options (max_pages, test_mode, etc.)')
+                        comment='Crawl options (max_pages, test_mode, etc.)')
 
     # Status Tracking
     status = db.Column(db.String(50), default='pending', index=True, nullable=False,
-                      comment='pending, running, completed, failed, cancelled')
+                       comment='pending, running, completed, failed, cancelled')
     progress_percentage = db.Column(db.Float, default=0.0,
-                                   comment='Progress 0-100')
+                                    comment='Progress 0-100')
     current_page = db.Column(db.String(500),
-                            comment='Currently processing page URL')
+                             comment='Currently processing page URL')
 
     # Statistics
     stats = db.Column(JSONB, default=dict,
-                     comment='Crawl statistics (pages_crawled, datasets_found, etc.)')
+                      comment='Crawl statistics (pages_crawled, datasets_found, etc.)')
     pages_crawled = db.Column(db.Integer, default=0)
     datasets_found = db.Column(db.Integer, default=0)
     datasets_created = db.Column(db.Integer, default=0)
@@ -55,27 +55,28 @@ class CrawlJob(db.Model):
 
     # Error Tracking
     error_message = db.Column(db.Text, nullable=True,
-                             comment='Error message if job failed')
+                              comment='Error message if job failed')
     error_details = db.Column(JSONB, nullable=True,
-                             comment='Detailed error information')
+                              comment='Detailed error information')
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False)
     started_at = db.Column(db.DateTime, nullable=True,
-                          comment='When crawl actually started')
+                           comment='When crawl actually started')
     completed_at = db.Column(db.DateTime, nullable=True,
-                            comment='When crawl finished (success or failure)')
+                             comment='When crawl finished (success or failure)')
     updated_at = db.Column(db.DateTime, default=datetime.utcnow,
-                          onupdate=datetime.utcnow, nullable=False)
+                           onupdate=datetime.utcnow, nullable=False)
 
     # User Tracking
     created_by = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'),
-                          nullable=True, index=True)
+                           nullable=True, index=True)
     user = db.relationship('User', back_populates='crawl_jobs')
 
     # Relationships
     datasets = db.relationship('Dataset', back_populates='crawl_job',
-                              cascade='all, delete-orphan', lazy='dynamic')
+                               cascade='all, delete-orphan', lazy='dynamic')
 
     def __repr__(self):
         return f'<CrawlJob {self.job_id}: {self.status}>'

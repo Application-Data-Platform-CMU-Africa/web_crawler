@@ -146,16 +146,20 @@ class CrawlerService:
             stats: Current crawl statistics
         """
         logger.info(f"Progress: Pages={stats['pages_crawled']}, "
-                   f"Found={stats['datasets_found']}, "
-                   f"Saved={stats['datasets_saved']}")
+                    f"Found={stats['datasets_found']}, "
+                    f"Saved={stats['datasets_saved']}")
 
-        # TODO: Update CrawlJob in database
-        # if self.db:
-        #     job = CrawlJob.query.get(self.current_job_id)
-        #     job.progress = calculate_progress(stats)
-        #     job.total_found = stats['datasets_found']
-        #     job.total_saved = stats['datasets_saved']
-        #     self.db.commit()
+        # Update CrawlJob in database
+        if self.db:
+            try:
+                from app.models.crawl_job import CrawlJob
+                job = CrawlJob.find_by_job_id(self.current_job_id)
+                if job:
+                    job.update_stats(stats)
+                    self.db.commit()
+            except Exception as e:
+                logger.error(f"Error updating job progress in database: {e}")
+                self.db.rollback()
 
     def _on_dataset_found(self, dataset: Dict):
         """
@@ -216,12 +220,17 @@ class CrawlerService:
         Returns:
             True if duplicate, False otherwise
         """
-        # TODO: Implement database lookup
-        # if self.db:
-        #     existing = Dataset.query.filter_by(
-        #         hash=dataset['hash']
-        #     ).first()
-        #     return existing is not None
+        # Check for duplicates in database
+        if self.db and 'hash' in dataset:
+            try:
+                from app.models.dataset import Dataset
+                existing = Dataset.query.filter_by(
+                    content_hash=dataset['hash']
+                ).first()
+                return existing is not None
+            except Exception as e:
+                logger.error(f"Error checking for duplicate: {e}")
+                return False
 
         return False
 
@@ -237,16 +246,42 @@ class CrawlerService:
 
         logger.info(f"Saving {len(datasets)} datasets to database")
 
-        # TODO: Implement database save
-        # if self.db:
-        #     for dataset_data in datasets:
-        #         dataset = Dataset(**dataset_data)
-        #         self.db.add(dataset)
-        #     self.db.commit()
+        # Save to database
+        if self.db:
+            try:
+                from app.models.dataset import Dataset
+                from app.models.crawl_job import CrawlJob
 
-        # For now, save to JSON for testing
-        for dataset in datasets:
-            self._save_to_json(dataset)
+                # Get the crawl job
+                crawl_job = CrawlJob.find_by_job_id(self.current_job_id)
+
+                for dataset_data in datasets:
+                    # Create dataset model instance
+                    dataset = Dataset(
+                        title=dataset_data.get('title'),
+                        description=dataset_data.get('description'),
+                        url=dataset_data.get('url'),
+                        source=dataset_data.get('source'),
+                        content_hash=dataset_data.get('hash'),
+                        tags=dataset_data.get('tags', []),
+                        metadata=dataset_data.get('metadata', {}),
+                        crawl_job_id=crawl_job.id if crawl_job else None
+                    )
+                    self.db.add(dataset)
+
+                self.db.commit()
+                logger.info(f"Successfully saved {len(datasets)} datasets to database")
+
+            except Exception as e:
+                logger.error(f"Error saving datasets to database: {e}", exc_info=True)
+                self.db.rollback()
+                # Fallback to JSON
+                for dataset in datasets:
+                    self._save_to_json(dataset)
+        else:
+            # No database session, save to JSON for testing
+            for dataset in datasets:
+                self._save_to_json(dataset)
 
     def _save_to_json(self, dataset: Dict):
         """

@@ -15,9 +15,29 @@ class Config:
     API_VERSION = "v1"
 
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "postgresql://localhost/web_crawler_dev"
-    )
+    # Build DATABASE_URL from components if not provided directly
+    @staticmethod
+    def get_database_url():
+        """Build database URL from individual components or use DATABASE_URL directly"""
+        # If DATABASE_URL is set, use it directly
+        database_url = os.getenv("DATABASE_URL")
+        if database_url:
+            return database_url
+
+        # Otherwise, build from individual components
+        db_user = os.getenv("DB_USER", "postgres")
+        db_password = os.getenv("DB_PASSWORD", "")
+        db_host = os.getenv("DB_HOST", "localhost")
+        db_port = os.getenv("DB_PORT", "5432")
+        db_name = os.getenv("DB_NAME", "web_crawler_dev")
+
+        # Build the URL
+        if db_password:
+            return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        else:
+            return f"postgresql://{db_user}@{db_host}:{db_port}/{db_name}"
+
+    SQLALCHEMY_DATABASE_URI = get_database_url.__func__()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_ENGINE_OPTIONS = {

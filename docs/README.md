@@ -110,6 +110,19 @@ This directory contains all technical documentation for the Dataset Crawler API 
 
 ---
 
+### [DATABASE_CONFIG.md](DATABASE_CONFIG.md)
+**Database Configuration Guide**
+- Two configuration methods (individual components vs DATABASE_URL)
+- Environment-specific examples
+- Connection pool settings
+- Troubleshooting guide
+- Security best practices
+
+**Status:** Complete
+**Audience:** Developers, DevOps, System Administrators
+
+---
+
 ## 📖 Quick Links
 
 - **Main README:** [../README.md](../README.md) - User guide and getting started
